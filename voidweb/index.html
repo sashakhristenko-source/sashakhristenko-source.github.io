@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VOIDWEB — Dark Cosmic Synth for FL Studio</title>
+<meta name="description" content="50 dark synths, a melody + 808 drum generator and a cosmic web that lives off your sound. VST3 / AU for Windows and Mac. $9.99.">
+<meta name="theme-color" content="#040509">
+<meta property="og:type" content="product">
+<meta property="og:title" content="VOIDWEB — dark cosmic synth for FL Studio">
+<meta property="og:description" content="50 dark synths · melody + 808 drum generator · VST3 / AU for Windows & Mac · $9.99">
+<meta property="og:image" content="https://sashakhristenko-source.github.io/voidweb/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://sashakhristenko-source.github.io/voidweb/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #040509;
+  --panel: rgba(9, 11, 18, 0.88);
+  --line: #1a1f2e;
+  --text: #c3c9e0;
+  --dim: #6c7290;
+  --white: #f2f4ff;
+  --drift: #8fa2ff;
+  --astral: #8fe3ff;
+  --void: #a49ac4;
+  --spirit: #d4a8ff;
+  --signal: #ff6a7a;
+  --accent: var(--astral);
+  --gutter: 20px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 15px/1.65 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: var(--bg); }
+a { color: var(--white); }
+img { max-width: 100%; display: block; }
+.pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+#web { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; image-rendering: pixelated; image-rendering: crisp-edges; opacity: .8; }
+.page { position: relative; z-index: 1; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--gutter); }
+
+/* pixel text built from the plugin's own 5x7 font */
+.px { display: block; height: calc(var(--s, 4px) * 7); width: auto; overflow: visible; }
+.px rect { shape-rendering: crispEdges; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* stepped pixel corners */
+.step { clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 16px 26px; min-height: 52px;
+  background: var(--accent); color: #05060a;
+  text-decoration: none; border: 0; cursor: pointer; font: inherit;
+  transition: background .12s steps(2), transform .12s steps(2);
+}
+.btn:hover { background: var(--white); }
+.btn:active { transform: translateY(2px); }
+.btn:focus-visible, .ghost:focus-visible, .play:focus-visible, .lang button:focus-visible, summary:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+.btn.soon { background: #2a3044; color: var(--text); }
+.btn .px { --s: 3px; }
+.btn.big .px { --s: 4px; }
+.ghost {
+  display: inline-flex; align-items: center; gap: 10px; padding: 14px 18px; min-height: 52px;
+  color: var(--text); text-decoration: none; border: 2px solid var(--line); background: rgba(4,5,9,.6);
+}
+.ghost:hover { border-color: var(--accent); color: var(--white); }
+.ghost .px { --s: 3px; }
+
+/* header */
+header.top {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  background: rgba(4, 5, 9, 0.9); border-bottom: 1px solid var(--line);
+}
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 12px; }
+header.top .logo { color: var(--white); text-decoration: none; }
+header.top .logo .px { --s: 3px; }
+.right { display: flex; align-items: center; gap: 10px; }
+.lang { display: flex; border: 1px solid var(--line); }
+.lang button { background: none; border: 0; color: var(--dim); font: inherit; font-size: 12px; padding: 6px 9px; cursor: pointer; min-width: 36px; min-height: 32px; }
+.lang button[aria-pressed="true"] { background: var(--line); color: var(--white); }
+header.top .btn { padding: 9px 14px; min-height: 38px; }
+@media (max-width: 520px) { header.top .btn { display: none; } }
+
+/* hero */
+.hero { padding: 108px 0 56px; }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+.wordmark { color: var(--white); width: min(100%, 540px); }
+.wordmark svg { width: 100%; height: auto; display: block; }
+.tagline { margin: 26px 0 0; color: var(--accent); }
+.tagline .px { height: auto; width: min(100%, 520px); }
+.lead { font-size: 17px; color: var(--text); max-width: 34em; margin: 22px 0 0; }
+.lead b { color: var(--white); font-weight: 600; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; align-items: center; }
+.note { color: var(--dim); font-size: 13px; margin-top: 14px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.badge { border: 1px solid var(--line); padding: 5px 9px; color: var(--dim); font-size: 12px; background: rgba(4,5,9,.6); }
+
+.phone { justify-self: center; width: min(340px, 100%); position: relative; }
+.phone .screen {
+  position: relative; aspect-ratio: 9 / 16; background: #000; overflow: hidden;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px rgba(143,227,255,.35), 0 0 0 10px var(--bg), 0 0 0 12px rgba(143,227,255,.14);
+}
+.phone video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sound {
+  position: absolute; left: 12px; bottom: 12px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; min-height: 40px;
+  background: rgba(4,5,9,.85); color: var(--white); border: 1px solid var(--accent); cursor: pointer; font: inherit; font-size: 12px;
+}
+.sound .px { --s: 2px; }
+
+/* sections */
+section { padding: 72px 0; scroll-margin-top: 58px; }
+.head { margin-bottom: 30px; }
+.kicker { color: var(--dim); font-size: 12px; letter-spacing: .12em; margin-bottom: 12px; }
+.head .px { --s: 5px; color: var(--white); }
+.head .bar { width: 64px; height: 4px; background: var(--accent); margin-top: 16px; }
+.head p { max-width: 40em; margin: 18px 0 0; }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); transition: border-color .15s steps(2), box-shadow .15s steps(2); }
+.card.on { border-color: var(--t); box-shadow: 0 0 0 2px var(--t); }
+.card img { width: 100%; aspect-ratio: 480 / 300; }
+.card .body { padding: 14px 16px 16px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; }
+.card .name { color: var(--t); }
+.card .name .px { --s: 3px; }
+.card .patch { color: var(--dim); font-size: 12px; grid-column: 1; }
+.card .desc { grid-column: 1 / -1; font-size: 14px; margin: 4px 0 0; }
+.play {
+  grid-column: 2; grid-row: 1 / span 2; width: 48px; height: 48px;
+  display: grid; place-items: center; background: var(--t); color: #05060a; border: 0; cursor: pointer;
+}
+.play:hover { background: var(--white); }
+.play .px { --s: 3px; }
+.meter { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; margin-top: 8px; height: 6px; }
+.meter i { background: #1a1f2e; }
+.meter i.lit { background: var(--t); }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.list li { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: baseline; }
+.list .k { color: var(--accent); }
+.list .k .px { --s: 2px; }
+.crop {
+  width: 100%; aspect-ratio: 228 / 90;
+  background-image: url(assets/shots/beat.png); background-repeat: no-repeat;
+  background-size: calc(100% * 480 / 228) auto;
+  background-position: 99.2% 100%;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px rgba(143,227,255,.3);
+}
+.cap { color: var(--dim); font-size: 12px; margin-top: 14px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tile { background: var(--panel); border: 1px solid var(--line); padding: 20px; }
+.tile .px { --s: 3px; color: var(--white); }
+.tile .bar { width: 28px; height: 3px; background: var(--t, var(--accent)); margin: 12px 0 10px; }
+.tile p { margin: 0; font-size: 14px; }
+
+.shot { border: 2px solid var(--line); background: #000; }
+.shot img { width: 100%; }
+
+.specs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.spec { background: var(--panel); border: 1px solid var(--line); padding: 22px; }
+.spec .px { --s: 3px; color: var(--white); margin-bottom: 14px; }
+.spec ul { margin: 0; padding-left: 18px; }
+.box { margin-top: 16px; background: var(--panel); border: 1px dashed var(--line); padding: 18px 22px; }
+
+details { border-top: 1px solid var(--line); }
+details:last-of-type { border-bottom: 1px solid var(--line); }
+summary { cursor: pointer; list-style: none; padding: 18px 4px; display: flex; gap: 14px; align-items: center; color: var(--white); font-weight: 600; }
+summary::-webkit-details-marker { display: none; }
+summary .px { --s: 2px; color: var(--accent); flex: none; transition: transform .15s steps(2); }
+details[open] summary .px { transform: rotate(45deg); }
+details p { margin: 0 4px 20px 30px; max-width: 46em; }
+
+.final { text-align: center; padding: 96px 0 120px; }
+.final .wordmark { margin: 0 auto; width: min(100%, 360px); }
+.final .cta { justify-content: center; }
+.final .lineup { margin: 26px auto 0; color: var(--accent); width: min(100%, 420px); }
+.final .lineup .px { width: 100%; height: auto; }
+
+footer { border-top: 1px solid var(--line); padding: 26px 0 120px; color: var(--dim); font-size: 12px; }
+footer p { margin: 4px 0; }
+
+.stick {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+  background: #05060a; border-top: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  transform: translateY(110%); transition: transform .2s steps(4);
+}
+.stick.show { transform: none; }
+.stick .px { --s: 3px; color: var(--white); }
+.stick .btn { padding: 12px 18px; min-height: 46px; }
+@media (min-width: 900px) { .stick { display: none; } }
+
+.toast {
+  position: fixed; left: 50%; top: 76px; transform: translateX(-50%); z-index: 40;
+  background: var(--bg); border: 2px solid var(--accent); color: var(--white); padding: 12px 16px; font-size: 13px;
+  opacity: 0; pointer-events: none; transition: opacity .15s steps(2); max-width: calc(100vw - 32px);
+}
+.toast.show { opacity: 1; }
+
+@media (max-width: 960px) {
+  .cards, .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .hero .wrap, .split, .specs { grid-template-columns: 1fr; }
+  .hero { padding-top: 92px; }
+  .hero .wrap { gap: 40px; }
+}
+@media (max-width: 620px) {
+  :root { --gutter: 16px; }
+  body { font-size: 14px; }
+  .cards, .grid { grid-template-columns: 1fr; }
+  .lead { font-size: 15px; }
+  section { padding: 56px 0; }
+  .head .px { --s: 4px; }
+  .list li { grid-template-columns: 1fr; gap: 4px; }
+  .btn.big { width: 100%; }
+  .cta .ghost { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+<canvas id="web" aria-hidden="true"></canvas>
+
+<div class="page">
+  <header class="top">
+    <div class="wrap">
+      <a class="logo" href="#top" aria-label="VOIDWEB"><span data-px="VOIDWEB"></span></a>
+      <div class="right">
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+        </div>
+        <a class="btn step" data-buy href="#"><span data-px="BUY $9.99" data-buy-label></span></a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="hero">
+      <div class="wrap">
+        <div>
+          <h1 class="sr">VOIDWEB — dark cosmic synth for FL Studio</h1>
+          <div class="wordmark" data-px="VOIDWEB" data-glow aria-hidden="true"></div>
+          <div class="tagline" data-px="DARK COSMIC SYNTH FOR FL STUDIO" aria-hidden="true"></div>
+          <p class="lead" data-i18n="lead"></p>
+          <div class="cta">
+            <a class="btn big step" id="heroBuy" data-buy href="#"><span data-px="BUY $9.99" data-buy-label></span></a>
+            <a class="ghost step" href="#listen"><span data-px="▶ LISTEN"></span></a>
+          </div>
+          <div class="note" data-i18n="instant"></div>
+          <div class="badges">
+            <span class="badge">VST3</span><span class="badge">AU</span><span class="badge">WINDOWS 10 / 11</span><span class="badge">macOS 11+</span><span class="badge">FL STUDIO 12+</span>
+          </div>
+        </div>
+        <div class="phone">
+          <div class="screen">
+            <video id="reel" src="assets/reel.mp4" poster="assets/reel-poster.jpg" muted autoplay loop playsinline preload="metadata"></video>
+            <button class="sound" type="button" id="soundBtn" aria-pressed="false"><span data-px="▶ SOUND" id="soundLabel"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section id="listen">
+      <div class="wrap">
+        <div class="head">
+          <div class="kicker">01</div>
+          <span data-px="LISTEN"></span>
+          <div class="bar"></div>
+          <p data-i18n="listenIntro"></p>
+        </div>
+        <div class="cards" id="cards"></div>
+      </div>
+    </section>
+
+    <section id="oracle">
+      <div class="wrap split">
+        <div>
+          <div class="head">
+            <div class="kicker">02</div>
+            <span data-px="ORACLE"></span>
+            <div class="bar"></div>
+            <p data-i18n="oracleIntro"></p>
+          </div>
+          <ul class="list" id="oracleList"></ul>
+        </div>
+        <div>
+          <div class="crop" role="img" aria-label="ORACLE panel of VOIDWEB with five slots"></div>
+          <div class="cap" data-i18n="oracleCap"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="inside">
+      <div class="wrap">
+        <div class="head">
+          <div class="kicker">03</div>
+          <span data-px="INSIDE"></span>
+          <div class="bar"></div>
+        </div>
+        <div class="grid" id="tiles"></div>
+      </div>
+    </section>
+
+    <section id="synths">
+      <div class="wrap">
+        <div class="head">
+          <div class="kicker">04</div>
+          <span data-px="50 SYNTHS"></span>
+          <div class="bar"></div>
+          <p data-i18n="synthsIntro"></p>
+        </div>
+        <div class="shot"><img class="pixelated" src="assets/shots/browser.png" width="480" height="300" alt="All 50 VOIDWEB synths in the patch browser" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section id="specs">
+      <div class="wrap">
+        <div class="head">
+          <div class="kicker">05</div>
+          <span data-px="SPECS"></span>
+          <div class="bar"></div>
+        </div>
+        <div class="specs">
+          <div class="spec"><span data-px="WINDOWS"></span><ul id="specWin"></ul></div>
+          <div class="spec"><span data-px="MAC"></span><ul id="specMac"></ul></div>
+        </div>
+        <div class="box" data-i18n="box"></div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="wrap">
+        <div class="head">
+          <div class="kicker">06</div>
+          <span data-px="FAQ"></span>
+          <div class="bar"></div>
+        </div>
+        <div id="faqList"></div>
+      </div>
+    </section>
+
+    <div class="final">
+      <div class="wrap">
+        <div class="wordmark" data-px="VOIDWEB" data-glow aria-hidden="true"></div>
+        <div class="lineup" data-px="ENTER THE VOID" aria-hidden="true"></div>
+        <div class="cta" style="margin-top:32px">
+          <a class="btn big step" data-buy href="#"><span data-px="BUY $9.99" data-buy-label></span></a>
+        </div>
+        <div class="note" data-i18n="instant"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>VOIDWEB © 2026</p>
+      <p data-i18n="legal"></p>
+    </div>
+  </footer>
+</div>
+
+<div class="stick" id="stick" aria-hidden="true">
+  <span data-px="VOIDWEB $9.99"></span>
+  <a class="btn step" data-buy href="#" tabindex="-1"><span data-px="BUY" data-buy-short></span></a>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---------------------------------------------------------------------------------------------
+// Paste the Gumroad product link here, e.g. "https://yourname.gumroad.com/l/voidweb"
+const BUY_URL = "";
+const PRICE = "$9.99";
+// ---------------------------------------------------------------------------------------------
+
+const FONT = {"A":[14,17,17,31,17,17,17],"B":[30,17,17,30,17,17,30],"C":[14,17,16,16,16,17,14],"D":[30,17,17,17,17,17,30],"E":[31,16,16,30,16,16,31],"F":[31,16,16,30,16,16,16],"G":[14,17,16,23,17,17,15],"H":[17,17,17,31,17,17,17],"I":[14,4,4,4,4,4,14],"J":[7,2,2,2,2,18,12],"K":[17,18,20,24,20,18,17],"L":[16,16,16,16,16,16,31],"M":[17,27,21,21,17,17,17],"N":[17,17,25,21,19,17,17],"O":[14,17,17,17,17,17,14],"P":[30,17,17,30,16,16,16],"Q":[14,17,17,17,21,18,13],"R":[30,17,17,30,20,18,17],"S":[15,16,16,14,1,1,30],"T":[31,4,4,4,4,4,4],"U":[17,17,17,17,17,17,14],"V":[17,17,17,17,17,10,4],"W":[17,17,17,21,21,21,10],"X":[17,17,10,4,10,17,17],"Y":[17,17,17,10,4,4,4],"Z":[31,1,2,4,8,16,31],"0":[14,17,19,21,25,17,14],"1":[4,12,4,4,4,4,14],"2":[14,17,1,2,4,8,31],"3":[31,2,4,2,1,17,14],"4":[2,6,10,18,31,2,2],"5":[31,16,30,1,1,17,14],"6":[6,8,16,30,17,17,14],"7":[31,1,2,4,8,8,8],"8":[14,17,17,14,17,17,14],"9":[14,17,17,15,1,2,12],".":[0,0,0,0,0,12,12],",":[0,0,0,0,12,4,8],":":[0,12,12,0,12,12,0],"/":[0,1,2,4,8,16,0],"-":[0,0,0,31,0,0,0],"+":[0,4,4,31,4,4,0],"#":[10,10,31,10,31,10,10],"%":[24,25,2,4,8,19,3],"(":[2,4,8,8,8,4,2],")":[8,4,2,2,2,4,8],"<":[2,4,8,16,8,4,2],">":[8,4,2,1,2,4,8],"[":[14,8,8,8,8,8,14],"]":[14,2,2,2,2,2,14],"!":[4,4,4,4,4,0,4],"?":[14,17,1,2,4,0,4],"_":[0,0,0,0,0,0,31],"=":[0,0,31,0,31,0,0],"*":[0,4,21,14,21,4,0],"|":[4,4,4,4,4,4,4],"▶":[8,12,14,15,14,12,8],"◀":[2,6,14,30,14,6,2],"▷":[8,12,14,15,14,12,8],"·":[0,0,0,4,0,0,0],"■":[0,30,30,30,30,0,0],"▼":[4,4,4,21,14,4,0]};
+FONT["$"] = [4, 15, 20, 14, 5, 30, 4];
+FONT["'"] = [4, 4, 8, 0, 0, 0, 0];
+
+/** Turns text into an SVG of the plugin's 5x7 pixel font (2 = glyph gap). */
+function pixelSvg(text, glow) {
+  const chars = [...text.toUpperCase()];
+  const w = Math.max(1, chars.length * 6 - 1), h = 7;
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", glow ? `-1 -1 ${w + 2} ${h + 2}` : `0 0 ${w} ${h}`);
+  svg.setAttribute("class", "px");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const runs = [];
+  chars.forEach((c, i) => {
+    const g = FONT[c];
+    if (!g) return;
+    for (let r = 0; r < 7; r++) {
+      let start = -1;
+      for (let b = 0; b <= 5; b++) {
+        const on = b < 5 && (g[r] >> (4 - b)) & 1;
+        if (on && start < 0) start = b;
+        if (!on && start >= 0) { runs.push([i * 6 + start, r, b - start]); start = -1; }
+      }
+    }
+  });
+  if (glow) {
+    const gl = document.createElementNS(ns, "g");
+    gl.setAttribute("fill", "var(--accent)");
+    gl.setAttribute("opacity", "0.38");
+    for (const [x, y, len] of runs) {
+      const rc = document.createElementNS(ns, "rect");
+      rc.setAttribute("x", x - 0.5); rc.setAttribute("y", y - 0.5);
+      rc.setAttribute("width", len + 1); rc.setAttribute("height", 2);
+      gl.appendChild(rc);
+    }
+    svg.appendChild(gl);
+  }
+  const g = document.createElementNS(ns, "g");
+  g.setAttribute("fill", "currentColor");
+  for (const [x, y, len] of runs) {
+    const rc = document.createElementNS(ns, "rect");
+    rc.setAttribute("x", x); rc.setAttribute("y", y); rc.setAttribute("width", len); rc.setAttribute("height", 1);
+    g.appendChild(rc);
+  }
+  svg.appendChild(g);
+  if (glow) { svg.style.height = "auto"; svg.style.width = "100%"; }
+  return svg;
+}
+
+function renderPixels(root = document) {
+  root.querySelectorAll("[data-px]").forEach(el => {
+    const text = el.getAttribute("data-px");
+    const svg = pixelSvg(text, el.hasAttribute("data-glow"));
+    el.replaceChildren(svg);
+    if (!el.closest("[aria-hidden='true']") && !el.closest("button") && !el.closest("a")) {
+      const s = document.createElement("span");
+      s.className = "sr";
+      s.textContent = text;
+      el.appendChild(s);
+    }
+    if (el.closest("a, button") && !el.closest("a, button").hasAttribute("aria-label")) {
+      el.closest("a, button").setAttribute("aria-label", text.replace(/[▶■]/g, "").trim());
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------------------------
+// copy
+const DEMOS = [
+  { id: "drift",  name: "DRIFT",  patch: "ASHEN HALO", tint: "#8fa2ff" },
+  { id: "astral", name: "ASTRAL", patch: "STARDROPS", tint: "#8fe3ff" },
+  { id: "void",   name: "VOID",   patch: "COLLAPSE", tint: "#a49ac4" },
+  { id: "spirit", name: "SPIRIT", patch: "GHOST CHOIR", tint: "#d4a8ff" },
+  { id: "signal", name: "SIGNAL", patch: "WOOZY LEAD", tint: "#ff6a7a" },
+  { id: "beat",   name: "ORACLE + 808", patch: "ORBITAL BELL + DRUMS", tint: "#8fe3ff" },
+];
+
+const T = {
+  en: {
+    lead: "<b>50 dark synths</b> from slow ambient pads to hazy plugg leads, <b>ORACLE</b> that writes melodies and 808 drums in one click, and a <b>cosmic web</b> that lives off your sound.",
+    instant: "Instant download after payment · Windows + Mac · VST3 / AU",
+    listenIntro: "Five worlds, ten synths each. Every demo comes straight out of the plugin: one click of ORACLE, nothing added.",
+    demo: {
+      drift: "Slow pads that float and breathe.",
+      astral: "Bells, glass and plucks with long echoes.",
+      void: "Drones, sub and heavy dark bass.",
+      spirit: "Choirs and ghost voices.",
+      signal: "Hazy leads, radio and glitch.",
+      beat: "Melody and drums from a single GEN click.",
+    },
+    oracleIntro: "Your idea generator. It writes in dark keys, follows your synth and never stops the flow.",
+    oracle: [
+      ["GEN", "Four melodies for the current synth, in phrygian, minor, harmonic minor and more."],
+      ["DRUMS", "Slot E: 808 with slides, hat rolls, snare and clap. Always in step with the melody."],
+      ["MUT + LOCK", "Variations of the slot you like. Padlocks keep the keepers."],
+      ["KEY / LEN", "Pick the key or let ORACLE choose. 2, 4 or 8 bars."],
+      ["DRAG", "Drag any slot into FL Studio as WAV or MIDI. Drums export as two tracks: drums and 808."],
+      ["ONE", "Save one-shots of the current sound: a note and a chord."],
+    ],
+    oracleCap: "Click a slot to loop it in your project tempo. Drag it out when it hits.",
+    tiles: [
+      ["CHORD", "One key plays a whole chord: MIN, MIN7, MIN9, SUS2, SUS4, PHRYG, POWER, OCT.", "#8fa2ff"],
+      ["SCALE LOCK", "Every note snaps into the key. No wrong notes, ever.", "#8fe3ff"],
+      ["DICE", "Endless new variations of any synth, in its own character. [X] brings the original back.", "#d4a8ff"],
+      ["7 KNOBS", "DARK · SPACE · DRIFT · DUST · GLOW · PUMP · VOL. PUMP pumps in project tempo like a sidechain.", "#a49ac4"],
+      ["PLAY THE WEB", "Click and drag across the cosmic web to play glissandos in key. Every note lights it up.", "#ff6a7a"],
+      ["PRESETS", "STORE saves your sound with every knob. Pixel UI in 1X, 2X or 3X size.", "#8fe3ff"],
+    ],
+    synthsIntro: "Ten per world. Flip with the arrows or the mouse wheel, click the name for the full list.",
+    specWin: ["Windows 10 / 11", "VST3, 64-bit and 32-bit", "FL Studio 12 and newer", "One-click installer"],
+    specMac: ["macOS 11 or newer", "AU + VST3", "Apple Silicon and Intel", "FL Studio 20 and newer"],
+    box: "<b>You get:</b> VOIDWEB_Windows.zip and VOIDWEB_Mac.zip with an install guide in English and Russian. Made and tested for FL Studio; it is a standard VST3 / AU instrument.",
+    faq: [
+      ["How do I get it after paying?", "Gumroad emails you the download link right away, and it stays in your Gumroad library."],
+      ["Windows says “Windows protected your PC”", "The installer is not signed with a paid certificate. Click “More info” → “Run anyway”."],
+      ["Mac says the plugin can't be opened", "VOIDWEB is not notarized by Apple yet. Copy the plugin, then paste the one line from INSTALL.txt into Terminal: it removes the download lock."],
+      ["Is it a sample pack?", "No, it is a real synth plugin. Play it from your keyboard or piano roll and pull loops out with ORACLE."],
+      ["Does it work in FL Studio 12?", "Yes, on Windows: VST3, 64-bit and 32-bit."],
+      ["Can I use the loops in my beats?", "Yes. Everything you make with VOIDWEB, ORACLE loops included, is yours to use royalty-free."],
+    ],
+    legal: "FL Studio is a trademark of Image-Line. VST is a trademark of Steinberg Media Technologies GmbH. Audio Units is a trademark of Apple Inc. Not affiliated.",
+    soon: "Checkout opens very soon. Check back in a bit!",
+  },
+  ru: {
+    lead: "<b>50 тёмных синтов</b> от медленных эмбиент-пэдов до мутных плагг-лидов, <b>ORACLE</b>, который пишет мелодии и барабаны с 808 в один клик, и <b>космическая паутина</b>, которая живёт от твоего звука.",
+    instant: "Скачивание сразу после оплаты · Windows + Mac · VST3 / AU",
+    listenIntro: "Пять миров по десять синтов. Все демки прямо из плагина: один клик ORACLE, ничего сверху.",
+    demo: {
+      drift: "Медленные пэды, которые плывут и дышат.",
+      astral: "Колокола, стекло и плаки с длинным эхом.",
+      void: "Дроны, саб и тяжёлый тёмный бас.",
+      spirit: "Хоры и призрачные голоса.",
+      signal: "Мутные лиды, радио и глитч.",
+      beat: "Мелодия и барабаны с одного клика GEN.",
+    },
+    oracleIntro: "Генератор идей. Пишет в тёмных тональностях, подстраивается под синт и не сбивает поток.",
+    oracle: [
+      ["GEN", "Четыре мелодии под текущий синт: фригийский, минор, гармонический минор и не только."],
+      ["DRUMS", "Слот E: 808 со слайдами, роллы хэтов, снейр и клэп. Всегда в такт с мелодией."],
+      ["MUT + LOCK", "Вариации понравившегося слота. Замочки сохраняют удачные."],
+      ["KEY / LEN", "Выбери тональность или доверь выбор ORACLE. 2, 4 или 8 тактов."],
+      ["DRAG", "Перетащи любой слот в FL Studio как WAV или MIDI. Барабаны выгружаются двумя дорожками: ударные и 808."],
+      ["ONE", "Сохраняй ваншоты текущего звука: ноту и аккорд."],
+    ],
+    oracleCap: "Клик по слоту включает его по кругу в темпе проекта. Зашло — тащи в проект.",
+    tiles: [
+      ["CHORD", "Одна клавиша играет целый аккорд: MIN, MIN7, MIN9, SUS2, SUS4, PHRYG, POWER, OCT.", "#8fa2ff"],
+      ["SCALE LOCK", "Все ноты подтягиваются в тональность. Мимо не сыграешь.", "#8fe3ff"],
+      ["DICE", "Бесконечные вариации любого синта в его же характере. [X] возвращает оригинал.", "#d4a8ff"],
+      ["7 KNOBS", "DARK · SPACE · DRIFT · DUST · GLOW · PUMP · VOL. PUMP качает в темп проекта, как сайдчейн.", "#a49ac4"],
+      ["PLAY THE WEB", "Води мышкой по паутине: играет глиссандо в тональности, каждая нота её зажигает.", "#ff6a7a"],
+      ["PRESETS", "STORE сохраняет звук со всеми ручками. Пиксельный интерфейс в размере 1X, 2X или 3X.", "#8fe3ff"],
+    ],
+    synthsIntro: "По десять в каждом мире. Листай стрелками или колесом, клик по названию открывает весь список.",
+    specWin: ["Windows 10 / 11", "VST3, 64 и 32 бита", "FL Studio 12 и новее", "Установщик в один клик"],
+    specMac: ["macOS 11 и новее", "AU + VST3", "Apple Silicon и Intel", "FL Studio 20 и новее"],
+    box: "<b>Что внутри:</b> VOIDWEB_Windows.zip и VOIDWEB_Mac.zip с инструкцией на русском и английском. Сделан и проверен в FL Studio, это обычный инструмент VST3 / AU.",
+    faq: [
+      ["Как получить плагин после оплаты?", "Gumroad сразу пришлёт ссылку на скачивание на почту, и она останется в твоей библиотеке Gumroad."],
+      ["Windows пишет «Система Windows защитила ваш компьютер»", "Установщик не подписан платным сертификатом. Нажми «Подробнее» → «Выполнить в любом случае»."],
+      ["Мак пишет, что плагин нельзя открыть", "VOIDWEB пока не заверен Apple. Скопируй плагин и вставь в Терминал одну строку из инструкции: она снимает блокировку скачанных файлов."],
+      ["Это сэмпл-пак?", "Нет, это настоящий синт-плагин. Играй с клавиатуры или в пиано-ролле, а лупы доставай через ORACLE."],
+      ["Работает в FL Studio 12?", "Да, на Windows: VST3, 64 и 32 бита."],
+      ["Можно использовать лупы в битах?", "Да. Всё, что ты сделал в VOIDWEB, включая лупы ORACLE, твоё, без роялти."],
+    ],
+    legal: "FL Studio — товарный знак Image-Line. VST — товарный знак Steinberg Media Technologies GmbH. Audio Units — товарный знак Apple Inc. Не аффилировано.",
+    soon: "Оплата откроется совсем скоро. Загляни чуть позже!",
+  },
+};
+
+let lang = "en";
+try { lang = localStorage.getItem("vw-lang") || ""; } catch (e) { lang = ""; }
+if (lang !== "en" && lang !== "ru") lang = (navigator.language || "en").toLowerCase().startsWith("ru") ? "ru" : "en";
+
+function esc(s) { return s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+function buildCopy() {
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t[el.getAttribute("data-i18n")]; });
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+
+  const cards = document.getElementById("cards");
+  cards.innerHTML = DEMOS.map(d => `
+    <article class="card" style="--t:${d.tint}" data-demo="${d.id}">
+      <img class="pixelated" src="assets/shots/${d.id}.png" width="480" height="300" alt="VOIDWEB playing ${esc(d.patch)}" loading="lazy">
+      <div class="body">
+        <div class="name"><span data-px="${d.name}"></span></div>
+        <div class="patch">${esc(d.patch)}</div>
+        <button class="play" type="button" aria-label="Play ${esc(d.name)} demo"><span data-px="▶"></span></button>
+        <p class="desc">${esc(t.demo[d.id])}</p>
+        <div class="meter" aria-hidden="true">${"<i></i>".repeat(24)}</div>
+      </div>
+    </article>`).join("");
+
+  document.getElementById("oracleList").innerHTML = t.oracle.map(([k, v]) =>
+    `<li><span class="k"><span data-px="${k}"></span></span><span>${esc(v)}</span></li>`).join("");
+  document.getElementById("tiles").innerHTML = t.tiles.map(([k, v, c]) =>
+    `<div class="tile" style="--t:${c}"><span data-px="${k}"></span><div class="bar"></div><p>${esc(v)}</p></div>`).join("");
+  document.getElementById("specWin").innerHTML = t.specWin.map(s => `<li>${esc(s)}</li>`).join("");
+  document.getElementById("specMac").innerHTML = t.specMac.map(s => `<li>${esc(s)}</li>`).join("");
+  document.getElementById("faqList").innerHTML = t.faq.map(([q, a]) =>
+    `<details><summary><span data-px="+"></span>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("");
+
+  renderPixels(document.getElementById("cards"));
+  renderPixels(document.getElementById("oracleList"));
+  renderPixels(document.getElementById("tiles"));
+  renderPixels(document.getElementById("faqList"));
+  wireDemos();
+}
+
+// ---------------------------------------------------------------------------------------------
+// buy buttons
+function wireBuy() {
+  document.querySelectorAll("[data-buy]").forEach(a => {
+    if (BUY_URL) { a.href = BUY_URL; a.classList.remove("soon"); }
+    else { a.href = "#"; a.classList.add("soon"); }
+  });
+  document.querySelectorAll("[data-buy-label]").forEach(el => el.setAttribute("data-px", BUY_URL ? `BUY ${PRICE}` : `SOON ${PRICE}`));
+  document.querySelectorAll("[data-buy-short]").forEach(el => el.setAttribute("data-px", BUY_URL ? "BUY" : "SOON"));
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-buy]");
+  if (a && !BUY_URL) { e.preventDefault(); toast(T[lang].soon); }
+});
+let toastTimer = 0;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+// ---------------------------------------------------------------------------------------------
+// audio: demos and the reel drive the web through one analyser
+let ac = null, analyser = null, timeData = null;
+const sources = new WeakMap();
+function ensureAudio() {
+  if (ac) { if (ac.state === "suspended") ac.resume(); return; }
+  try {
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = ac.createAnalyser();
+    analyser.fftSize = 1024;
+    timeData = new Uint8Array(analyser.fftSize);
+    analyser.connect(ac.destination);
+  } catch (e) { ac = null; }
+}
+function route(media) {
+  if (!ac || sources.has(media)) return;
+  try { const s = ac.createMediaElementSource(media); s.connect(analyser); sources.set(media, s); } catch (e) {}
+}
+function audioLevel() {
+  if (!analyser) return 0;
+  analyser.getByteTimeDomainData(timeData);
+  let sum = 0;
+  for (let i = 0; i < timeData.length; i++) { const v = (timeData[i] - 128) / 128; sum += v * v; }
+  return Math.sqrt(sum / timeData.length);
+}
+
+const players = {};
+let current = null;
+const reel = document.getElementById("reel");
+const soundBtn = document.getElementById("soundBtn");
+
+function stopDemo() {
+  if (!current) return;
+  const { audio, card } = current;
+  audio.pause();
+  audio.currentTime = 0;
+  card.classList.remove("on");
+  card.querySelector(".play").replaceChildren(pixelSvg("▶"));
+  card.querySelectorAll(".meter i").forEach(i => i.classList.remove("lit"));
+  current = null;
+  setTint(defaultTint);
+}
+
+function wireDemos() {
+  document.querySelectorAll(".card").forEach(card => {
+    const id = card.dataset.demo;
+    const d = DEMOS.find(x => x.id === id);
+    card.querySelector(".play").addEventListener("click", () => {
+      if (current && current.id === id) { stopDemo(); return; }
+      stopDemo();
+      setReelSound(false);
+      ensureAudio();
+      let audio = players[id];
+      if (!audio) {
+        audio = new Audio(`assets/demos/${id}.m4a`);
+        audio.preload = "auto";
+        players[id] = audio;
+        audio.addEventListener("ended", () => { if (current && current.audio === audio) stopDemo(); });
+      }
+      route(audio);
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+      current = { id, audio, card };
+      card.classList.add("on");
+      card.querySelector(".play").replaceChildren(pixelSvg("■"));
+      setTint(d.tint);
+      burst(0.5);
+    });
+  });
+}
+
+function setReelSound(on) {
+  if (on) {
+    stopDemo();
+    ensureAudio();
+    route(reel);
+    reel.muted = false;
+    if (reel.paused) reel.play().catch(() => {});
+  } else {
+    reel.muted = true;
+  }
+  soundBtn.setAttribute("aria-pressed", String(on));
+  soundBtn.setAttribute("aria-label", on ? "Mute video" : "Video sound on");
+  soundBtn.replaceChildren(pixelSvg(on ? "■ MUTE" : "▶ SOUND"));
+}
+soundBtn.addEventListener("click", () => setReelSound(reel.muted));
+
+function tickMeters() {
+  if (current) {
+    const { audio, card } = current;
+    const p = audio.duration ? audio.currentTime / audio.duration : 0;
+    const lit = Math.round(p * 24);
+    card.querySelectorAll(".meter i").forEach((i, k) => i.classList.toggle("lit", k < lit));
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// the cosmic web behind everything (same idea as the plugin, drawn at a quarter resolution)
+const cvs = document.getElementById("web");
+const ctx = cvs.getContext("2d", { alpha: false });
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => (v + 0.5) / 16);
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const defaultTint = "#8fe3ff";
+let tint = hex(defaultTint), tintTo = tint.slice(), ramp = [];
+let S = 4, bw = 0, bh = 0, img = null, glow = null, neb = null, nodes = [], stars = [], time = 0, level = 0;
+
+function setTint(h) { tintTo = hex(h); }
+function makeRamp() {
+  const base = [4, 5, 9];
+  ramp = [];
+  for (let k = 0; k < 8; k++) {
+    const u = k / 7;
+    let c;
+    if (u <= 0.72) { const t = u / 0.72; c = base.map((v, i) => v + (tint[i] * 0.85 - v) * t * t); }
+    else { const t = (u - 0.72) / 0.28; c = tint.map(v => v * 0.85 + (255 - v * 0.85) * t * 0.85); }
+    ramp.push(c.map(Math.round));
+  }
+}
+function node(x, y, e, life) { return { x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, e, life }; }
+function resize() {
+  S = innerWidth < 700 ? 3 : 4;
+  bw = Math.max(8, Math.ceil((innerWidth || 800) / S));
+  bh = Math.max(8, Math.ceil((innerHeight || 600) / S));
+  cvs.width = bw; cvs.height = bh;
+  img = ctx.createImageData(bw, bh);
+  glow = new Float32Array(bw * bh);
+  neb = new Float32Array(bw * bh);
+  const ph = Math.random() * 10;
+  for (let y = 0; y < bh; y++)
+    for (let x = 0; x < bw; x++) {
+      let n = 0.5 + 0.28 * Math.sin(x * 0.029 + ph) * Math.cos(y * 0.024 - ph * 0.7) + 0.22 * Math.sin((x * 0.6 + y) * 0.017 + ph * 1.9);
+      const dx = x / bw - 0.5, dy = y / bh - 0.5;
+      neb[y * bw + x] = Math.max(0, n * n * (1 - (dx * dx + dy * dy) * 1.6));
+    }
+  const count = Math.max(34, Math.min(140, Math.round(bw * bh / 650)));
+  nodes = [];
+  for (let i = 0; i < count; i++) nodes.push(node(Math.random() * bw, Math.random() * bh, Math.random() * 0.3, Infinity));
+  stars = [];
+  for (let i = 0; i < bw * bh / 260; i++) stars.push({ i: (Math.random() * bh | 0) * bw + (Math.random() * bw | 0), b: 0.2 + Math.random() * 0.5, r: 0.5 + Math.random() * 2.5, p: Math.random() * 7 });
+}
+function burst(strength) {
+  for (let k = 0; k < 6; k++) nodes.push(node(Math.random() * bw, Math.random() * bh, strength, 4 + Math.random() * 4));
+}
+function addLine(x0, y0, x1, y1, b) {
+  x0 |= 0; y0 |= 0; x1 |= 0; y1 |= 0;
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy;
+  for (let guard = 0; guard < 400; guard++) {
+    if (x0 >= 0 && y0 >= 0 && x0 < bw && y0 < bh) { const i = y0 * bw + x0; glow[i] = Math.min(1.6, glow[i] + b); }
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+function step(dt) {
+  time += dt;
+  const target = Math.min(1, audioLevel() * 2.4);
+  level += (target - level) * (target > level ? 0.5 : 0.06);
+  let moved = false;
+  for (let i = 0; i < 3; i++) { const d = tintTo[i] - tint[i]; if (Math.abs(d) > 0.5) { tint[i] += d * Math.min(1, dt * 3); moved = true; } }
+  if (moved || !ramp.length) makeRamp();
+
+  const speed = reduceMotion ? 0.25 : 1;
+  for (const n of nodes) {
+    const a = (Math.sin(n.x * 0.035 + time * 0.13) + Math.cos(n.y * 0.041 - time * 0.09)) * Math.PI;
+    n.vx = (n.vx + Math.cos(a) * 7 * dt) * 0.975;
+    n.vy = (n.vy + Math.sin(a) * 7 * dt) * 0.975;
+    n.x += n.vx * dt * speed * (1 + level * 2.5);
+    n.y += n.vy * dt * speed * (1 + level * 2.5);
+    if (n.x < -4) n.x += bw + 8; if (n.x > bw + 4) n.x -= bw + 8;
+    if (n.y < -4) n.y += bh + 8; if (n.y > bh + 4) n.y -= bh + 8;
+    n.e *= Math.exp(-dt * 1.2);
+    n.life -= dt;
+  }
+  nodes = nodes.filter(n => n.life > 0);
+  if (level > 0.2 && Math.random() < level * 0.5 && nodes.length < 220)
+    nodes.push(node(Math.random() * bw, Math.random() * bh, 0.6 + level * 0.4, 3 + Math.random() * 4));
+}
+function render(dt) {
+  const keep = Math.exp(-dt * 5), f = 1 - keep;
+  for (let i = 0; i < glow.length; i++) glow[i] *= keep;
+  const maxD = 30 + level * 10, maxD2 = maxD * maxD;
+  const n = nodes.length;
+  for (let i = 0; i < n; i++) {
+    const a = nodes[i];
+    let b1 = -1, b2 = -1, d1 = maxD2, d2 = maxD2;
+    for (let j = 0; j < n; j++) {
+      if (j === i) continue;
+      const dx = nodes[j].x - a.x, dy = nodes[j].y - a.y, d = dx * dx + dy * dy;
+      if (d < d1) { d2 = d1; b2 = b1; d1 = d; b1 = j; } else if (d < d2) { d2 = d; b2 = j; }
+    }
+    for (const [j, d] of [[b1, d1], [b2, d2]]) {
+      if (j < 0) continue;
+      const b = nodes[j];
+      const s = (0.22 + level * 0.6 + (a.e + b.e) * 0.45) * (1 - Math.sqrt(d) / maxD);
+      addLine(a.x, a.y, b.x, b.y, s * f * 2.2);
+    }
+  }
+  for (const a of nodes) {
+    const x = a.x | 0, y = a.y | 0;
+    if (x < 1 || y < 1 || x >= bw - 1 || y >= bh - 1) continue;
+    const c = (0.9 + a.e) * f * 3;
+    glow[y * bw + x] += c;
+    if (a.e > 0.25 || level > 0.3) { glow[y * bw + x - 1] += c * 0.4; glow[y * bw + x + 1] += c * 0.4; glow[(y - 1) * bw + x] += c * 0.4; glow[(y + 1) * bw + x] += c * 0.4; }
+  }
+  for (const s of stars) {
+    const v = s.b * (0.55 + 0.45 * Math.sin(time * s.r + s.p));
+    if (glow[s.i] < v) glow[s.i] = v;
+  }
+  const data = img.data;
+  const nebAmt = 0.16 + level * 0.12;
+  for (let y = 0, i = 0, p = 0; y < bh; y++) {
+    const by = (y & 3) * 4;
+    for (let x = 0; x < bw; x++, i++, p += 4) {
+      const v = glow[i] * 0.7 + neb[i] * nebAmt;
+      let k = (v * 7 + BAYER[by + (x & 3)] - 0.5) | 0;
+      if (k < 0) k = 0; else if (k > 7) k = 7;
+      const c = ramp[k];
+      data[p] = c[0]; data[p + 1] = c[1]; data[p + 2] = c[2]; data[p + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+let last = performance.now(), acc = 0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  acc += dt;
+  if (acc >= 1 / 32) {
+    step(acc);
+    render(acc);
+    tickMeters();
+    acc = 0;
+  }
+  requestAnimationFrame(frame);
+}
+addEventListener("resize", () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 150); });
+addEventListener("pointerdown", e => {
+  if (e.target.closest("a, button, summary, video")) return;
+  const x = e.clientX / S, y = e.clientY / S;
+  for (let k = 0; k < 4; k++) nodes.push(node(x + (Math.random() - 0.5) * 10, y + (Math.random() - 0.5) * 10, 1, 4 + Math.random() * 3));
+});
+
+// sticky buy bar once the hero button scrolls away
+const stick = document.getElementById("stick");
+new IntersectionObserver(([e]) => {
+  const show = !e.isIntersecting && e.boundingClientRect.top < 0;
+  stick.classList.toggle("show", show);
+  stick.setAttribute("aria-hidden", String(!show));
+  stick.querySelector("a").tabIndex = show ? 0 : -1;
+}).observe(document.getElementById("heroBuy"));
+
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => {
+  lang = b.dataset.lang;
+  try { localStorage.setItem("vw-lang", lang); } catch (e) {}
+  stopDemo();
+  buildCopy();
+}));
+
+wireBuy();
+renderPixels();
+buildCopy();
+resize();
+makeRamp();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
