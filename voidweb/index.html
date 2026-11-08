@@ -109,6 +109,14 @@ header.top .btn { padding: 9px 14px; min-height: 38px; }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; align-items: center; }
 .note { color: var(--dim); font-size: 13px; margin-top: 14px; }
 .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.launch { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 24px; padding: 12px 14px; border: 1px dashed var(--accent); background: rgba(4,5,9,.7); max-width: 34em; }
+.launch[hidden] { display: none; }
+.launch .tag { color: var(--bg); background: var(--accent); padding: 6px 8px; }
+.launch .tag .px { --s: 2px; }
+.launch .ltxt { font-size: 13px; color: var(--text); }
+.launch s { color: var(--dim); }
+.launch b { color: var(--white); }
+.final .launch { margin: 28px auto 0; justify-content: center; }
 .pays { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; }
 .pays .lbl { color: var(--dim); margin-right: 2px; }
 .pay { border: 1px solid var(--accent); color: var(--white); padding: 5px 10px; background: rgba(4,5,9,.6); white-space: nowrap; }
@@ -272,6 +280,7 @@ footer p { margin: 4px 0; }
           <div class="wordmark" data-px="VOIDWEB" data-glow aria-hidden="true"></div>
           <div class="tagline" data-px="DARK COSMIC SYNTH FOR FL STUDIO" aria-hidden="true"></div>
           <p class="lead" data-i18n="lead"></p>
+          <div class="launch" hidden><span class="tag" data-px="LAUNCH -30%"></span><span class="ltxt" data-i18n="launch"></span></div>
           <div class="cta">
             <a class="btn big step" id="heroBuy" data-buy href="#"><span data-px="BUY $9.99" data-buy-label></span></a>
             <a class="ghost step" href="#listen"><span data-px="▶ LISTEN"></span></a>
@@ -374,6 +383,7 @@ footer p { margin: 4px 0; }
       <div class="wrap">
         <div class="wordmark" data-px="VOIDWEB" data-glow aria-hidden="true"></div>
         <div class="lineup" data-px="ENTER THE VOID" aria-hidden="true"></div>
+        <div class="launch" hidden><span class="tag" data-px="LAUNCH -30%"></span><span class="ltxt" data-i18n="launch"></span></div>
         <div class="cta" style="margin-top:32px">
           <a class="btn big step" data-buy href="#"><span data-px="BUY $9.99" data-buy-label></span></a>
         </div>
@@ -392,7 +402,7 @@ footer p { margin: 4px 0; }
 </div>
 
 <div class="stick" id="stick" aria-hidden="true">
-  <span data-px="VOIDWEB $9.99"></span>
+  <span id="stickLabel" data-px="VOIDWEB $9.99"></span>
   <a class="btn step" data-buy href="#" tabindex="-1"><span data-px="BUY" data-buy-short></span></a>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -402,6 +412,9 @@ footer p { margin: 4px 0; }
 // Paste the Gumroad product link here, e.g. "https://yourname.gumroad.com/l/voidweb"
 const BUY_URL = "https://sashahristenko.gumroad.com/l/voidweb?wanted=true";
 const PRICE = "$9.99";
+// Launch week: the LAUNCH code (-30%) is applied by the link itself; the site switches back on its own afterwards.
+const LAUNCH = { url: "https://sashahristenko.gumroad.com/l/voidweb/LAUNCH?wanted=true", price: "$6.99", ends: Date.parse("2026-11-16T07:59:00Z") };
+const launchOn = () => Date.now() < LAUNCH.ends;
 // ---------------------------------------------------------------------------------------------
 
 const FONT = {"A":[14,17,17,31,17,17,17],"B":[30,17,17,30,17,17,30],"C":[14,17,16,16,16,17,14],"D":[30,17,17,17,17,17,30],"E":[31,16,16,30,16,16,31],"F":[31,16,16,30,16,16,16],"G":[14,17,16,23,17,17,15],"H":[17,17,17,31,17,17,17],"I":[14,4,4,4,4,4,14],"J":[7,2,2,2,2,18,12],"K":[17,18,20,24,20,18,17],"L":[16,16,16,16,16,16,31],"M":[17,27,21,21,17,17,17],"N":[17,17,25,21,19,17,17],"O":[14,17,17,17,17,17,14],"P":[30,17,17,30,16,16,16],"Q":[14,17,17,17,21,18,13],"R":[30,17,17,30,20,18,17],"S":[15,16,16,14,1,1,30],"T":[31,4,4,4,4,4,4],"U":[17,17,17,17,17,17,14],"V":[17,17,17,17,17,10,4],"W":[17,17,17,21,21,21,10],"X":[17,17,10,4,10,17,17],"Y":[17,17,17,10,4,4,4],"Z":[31,1,2,4,8,16,31],"0":[14,17,19,21,25,17,14],"1":[4,12,4,4,4,4,14],"2":[14,17,1,2,4,8,31],"3":[31,2,4,2,1,17,14],"4":[2,6,10,18,31,2,2],"5":[31,16,30,1,1,17,14],"6":[6,8,16,30,17,17,14],"7":[31,1,2,4,8,8,8],"8":[14,17,17,14,17,17,14],"9":[14,17,17,15,1,2,12],".":[0,0,0,0,0,12,12],",":[0,0,0,0,12,4,8],":":[0,12,12,0,12,12,0],"/":[0,1,2,4,8,16,0],"-":[0,0,0,31,0,0,0],"+":[0,4,4,31,4,4,0],"#":[10,10,31,10,31,10,10],"%":[24,25,2,4,8,19,3],"(":[2,4,8,8,8,4,2],")":[8,4,2,2,2,4,8],"<":[2,4,8,16,8,4,2],">":[8,4,2,1,2,4,8],"[":[14,8,8,8,8,8,14],"]":[14,2,2,2,2,2,14],"!":[4,4,4,4,4,0,4],"?":[14,17,1,2,4,0,4],"_":[0,0,0,0,0,0,31],"=":[0,0,31,0,31,0,0],"*":[0,4,21,14,21,4,0],"|":[4,4,4,4,4,4,4],"▶":[8,12,14,15,14,12,8],"◀":[2,6,14,30,14,6,2],"▷":[8,12,14,15,14,12,8],"·":[0,0,0,4,0,0,0],"■":[0,30,30,30,30,0,0],"▼":[4,4,4,21,14,4,0]};
@@ -488,6 +501,7 @@ const T = {
     lead: "<b>50 dark synths</b> from slow ambient pads to hazy plugg leads, <b>ORACLE</b> that writes melodies and 808 drums in one click, and a <b>cosmic web</b> that lives off your sound.",
     instant: "Instant download after payment · Windows + Mac · VST3 / AU",
     payWith: "Pay with",
+    launch: "Launch week: <b>$6.99</b> <s>$9.99</s> until Nov 15. The LAUNCH code is already applied at checkout.",
     payCard: "Visa · Mastercard · Amex",
     listenIntro: "Five worlds, ten synths each. Every demo comes straight out of the plugin: one click of ORACLE, nothing added.",
     demo: {
@@ -536,6 +550,7 @@ const T = {
     lead: "<b>50 тёмных синтов</b> от медленных эмбиент-пэдов до мутных плагг-лидов, <b>ORACLE</b>, который пишет мелодии и барабаны с 808 в один клик, и <b>космическая паутина</b>, которая живёт от твоего звука.",
     instant: "Скачивание сразу после оплаты · Windows + Mac · VST3 / AU",
     payWith: "Оплата:",
+    launch: "Неделя запуска: <b>$6.99</b> <s>$9.99</s> до 15 ноября. Код LAUNCH уже применён в оплате.",
     payCard: "Visa · Mastercard · Amex",
     listenIntro: "Пять миров по десять синтов. Все демки прямо из плагина: один клик ORACLE, ничего сверху.",
     demo: {
@@ -626,12 +641,18 @@ function buildCopy() {
 // ---------------------------------------------------------------------------------------------
 // buy buttons
 function wireBuy() {
+  const sale = BUY_URL && launchOn();
+  const url = sale ? LAUNCH.url : BUY_URL;
+  const price = sale ? LAUNCH.price : PRICE;
   document.querySelectorAll("[data-buy]").forEach(a => {
-    if (BUY_URL) { a.href = BUY_URL; a.classList.remove("soon"); }
+    if (url) { a.href = url; a.classList.remove("soon"); }
     else { a.href = "#"; a.classList.add("soon"); }
   });
-  document.querySelectorAll("[data-buy-label]").forEach(el => el.setAttribute("data-px", BUY_URL ? `BUY ${PRICE}` : `SOON ${PRICE}`));
-  document.querySelectorAll("[data-buy-short]").forEach(el => el.setAttribute("data-px", BUY_URL ? "BUY" : "SOON"));
+  document.querySelectorAll("[data-buy-label]").forEach(el => el.setAttribute("data-px", url ? `BUY ${price}` : `SOON ${price}`));
+  document.querySelectorAll("[data-buy-short]").forEach(el => el.setAttribute("data-px", url ? "BUY" : "SOON"));
+  const stickLabel = document.getElementById("stickLabel");
+  if (stickLabel) stickLabel.setAttribute("data-px", `VOIDWEB ${price}`);
+  document.querySelectorAll(".launch").forEach(el => { el.hidden = !sale; });
 }
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-buy]");
