@@ -164,6 +164,10 @@ section { padding: 72px 0; scroll-margin-top: 58px; }
 .meter i { background: #1a1f2e; }
 .meter i.lit { background: var(--t); }
 
+.freebie { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; padding: 18px 20px; border: 1px dashed var(--accent); background: var(--panel); }
+.freebie .px { --s: 3px; color: var(--accent); }
+.freebie p { margin: 10px 0 0; font-size: 14px; max-width: 36em; }
+@media (max-width: 620px) { .freebie .ghost { width: 100%; justify-content: center; } }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
 .list li { display: grid; grid-template-columns: 112px 1fr; gap: 14px; align-items: baseline; }
@@ -309,6 +313,10 @@ footer p { margin: 4px 0; }
           <p data-i18n="listenIntro"></p>
         </div>
         <div class="cards" id="cards"></div>
+        <div class="freebie">
+          <div><span data-px="FREE LOOPS VOL.1"></span><p data-i18n="free"></p></div>
+          <a class="ghost step" href="https://sashahristenko.gumroad.com/l/voidweb-free-loops"><span data-px="▼ GET IT FREE"></span></a>
+        </div>
       </div>
     </section>
 
@@ -501,6 +509,7 @@ const T = {
     lead: "<b>50 dark synths</b> from slow ambient pads to hazy plugg leads, <b>ORACLE</b> that writes melodies and 808 drums in one click, and a <b>cosmic web</b> that lives off your sound.",
     instant: "Instant download after payment · Windows + Mac · VST3 / AU",
     payWith: "Pay with",
+    free: "Not ready yet? Grab 12 melodic loops, 4 drum loops with 808s and 8 one-shots made with VOIDWEB. WAV, royalty-free, pay what you want from $0.",
     launch: "Launch week: <b>$6.99</b> <s>$9.99</s> until Nov 15. The LAUNCH code is already applied at checkout.",
     payCard: "Visa · Mastercard · Amex",
     listenIntro: "Five worlds, ten synths each. Every demo comes straight out of the plugin: one click of ORACLE, nothing added.",
@@ -550,6 +559,7 @@ const T = {
     lead: "<b>50 тёмных синтов</b> от медленных эмбиент-пэдов до мутных плагг-лидов, <b>ORACLE</b>, который пишет мелодии и барабаны с 808 в один клик, и <b>космическая паутина</b>, которая живёт от твоего звука.",
     instant: "Скачивание сразу после оплаты · Windows + Mac · VST3 / AU",
     payWith: "Оплата:",
+    free: "Пока не готов покупать? Забери 12 мелодических лупов, 4 барабанных лупа с 808 и 8 ваншотов, сделанных в VOIDWEB. WAV, без роялти, бесплатно (или сколько не жалко).",
     launch: "Неделя запуска: <b>$6.99</b> <s>$9.99</s> до 15 ноября. Код LAUNCH уже применён в оплате.",
     payCard: "Visa · Mastercard · Amex",
     listenIntro: "Пять миров по десять синтов. Все демки прямо из плагина: один клик ORACLE, ничего сверху.",
