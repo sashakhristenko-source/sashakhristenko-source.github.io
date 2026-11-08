@@ -109,6 +109,10 @@ header.top .btn { padding: 9px 14px; min-height: 38px; }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; align-items: center; }
 .note { color: var(--dim); font-size: 13px; margin-top: 14px; }
 .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.pays { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; }
+.pays .lbl { color: var(--dim); margin-right: 2px; }
+.pay { border: 1px solid var(--accent); color: var(--white); padding: 5px 10px; background: rgba(4,5,9,.6); white-space: nowrap; }
+.final .pays { justify-content: center; }
 .badge { border: 1px solid var(--line); padding: 5px 9px; color: var(--dim); font-size: 12px; background: rgba(4,5,9,.6); }
 
 .phone { justify-self: center; width: min(340px, 100%); position: relative; }
@@ -273,6 +277,7 @@ footer p { margin: 4px 0; }
             <a class="ghost step" href="#listen"><span data-px="▶ LISTEN"></span></a>
           </div>
           <div class="note" data-i18n="instant"></div>
+          <div class="pays"><span class="lbl" data-i18n="payWith"></span><span class="pay">Apple Pay</span><span class="pay">Google Pay</span><span class="pay" data-i18n="payCard"></span></div>
           <div class="badges">
             <span class="badge">VST3</span><span class="badge">AU</span><span class="badge">WINDOWS 10 / 11</span><span class="badge">macOS 11+</span><span class="badge">FL STUDIO 12+</span>
           </div>
@@ -373,6 +378,7 @@ footer p { margin: 4px 0; }
           <a class="btn big step" data-buy href="#"><span data-px="BUY $9.99" data-buy-label></span></a>
         </div>
         <div class="note" data-i18n="instant"></div>
+        <div class="pays"><span class="lbl" data-i18n="payWith"></span><span class="pay">Apple Pay</span><span class="pay">Google Pay</span><span class="pay" data-i18n="payCard"></span></div>
       </div>
     </div>
   </main>
@@ -481,6 +487,8 @@ const T = {
   en: {
     lead: "<b>50 dark synths</b> from slow ambient pads to hazy plugg leads, <b>ORACLE</b> that writes melodies and 808 drums in one click, and a <b>cosmic web</b> that lives off your sound.",
     instant: "Instant download after payment · Windows + Mac · VST3 / AU",
+    payWith: "Pay with",
+    payCard: "Visa · Mastercard · Amex",
     listenIntro: "Five worlds, ten synths each. Every demo comes straight out of the plugin: one click of ORACLE, nothing added.",
     demo: {
       drift: "Slow pads that float and breathe.",
@@ -514,6 +522,7 @@ const T = {
     box: "<b>You get:</b> VOIDWEB_Windows.zip and VOIDWEB_Mac.zip with an install guide in English and Russian. Made and tested for FL Studio; it is a standard VST3 / AU instrument.",
     faq: [
       ["How do I get it after paying?", "Gumroad emails you the download link right away, and it stays in your Gumroad library."],
+      ["How can I pay?", "Through the Gumroad checkout: Apple Pay, Google Pay or any major card. Apple Pay shows up in Safari on iPhone and Mac, Google Pay in Chrome and on Android."],
       ["Windows says “Windows protected your PC”", "The installer is not signed with a paid certificate. Click “More info” → “Run anyway”."],
       ["Mac says the plugin can't be opened", "VOIDWEB is not notarized by Apple yet. Copy the plugin, then paste the one line from INSTALL.txt into Terminal: it removes the download lock."],
       ["Is it a sample pack?", "No, it is a real synth plugin. Play it from your keyboard or piano roll and pull loops out with ORACLE."],
@@ -526,6 +535,8 @@ const T = {
   ru: {
     lead: "<b>50 тёмных синтов</b> от медленных эмбиент-пэдов до мутных плагг-лидов, <b>ORACLE</b>, который пишет мелодии и барабаны с 808 в один клик, и <b>космическая паутина</b>, которая живёт от твоего звука.",
     instant: "Скачивание сразу после оплаты · Windows + Mac · VST3 / AU",
+    payWith: "Оплата:",
+    payCard: "Visa · Mastercard · Amex",
     listenIntro: "Пять миров по десять синтов. Все демки прямо из плагина: один клик ORACLE, ничего сверху.",
     demo: {
       drift: "Медленные пэды, которые плывут и дышат.",
@@ -559,6 +570,7 @@ const T = {
     box: "<b>Что внутри:</b> VOIDWEB_Windows.zip и VOIDWEB_Mac.zip с инструкцией на русском и английском. Сделан и проверен в FL Studio, это обычный инструмент VST3 / AU.",
     faq: [
       ["Как получить плагин после оплаты?", "Gumroad сразу пришлёт ссылку на скачивание на почту, и она останется в твоей библиотеке Gumroad."],
+      ["Как можно оплатить?", "Через оплату Gumroad: Apple Pay, Google Pay или любой картой. Apple Pay появляется в Safari на iPhone и Mac, Google Pay — в Chrome и на Android."],
       ["Windows пишет «Система Windows защитила ваш компьютер»", "Установщик не подписан платным сертификатом. Нажми «Подробнее» → «Выполнить в любом случае»."],
       ["Мак пишет, что плагин нельзя открыть", "VOIDWEB пока не заверен Apple. Скопируй плагин и вставь в Терминал одну строку из инструкции: она снимает блокировку скачанных файлов."],
       ["Это сэмпл-пак?", "Нет, это настоящий синт-плагин. Играй с клавиатуры или в пиано-ролле, а лупы доставай через ORACLE."],
